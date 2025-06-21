@@ -89,18 +89,15 @@ const FacilitiesList = () => {
     if (!cityQuery.trim()) return;
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        import.meta.env.VITE_DATA_API_BASE + "123",
-        {
-          params: {
-            resource_id: "2304b5de-c720-4b5c-bbc7-4cbab85e0ae8",
-            q: cityQuery,
-            fields:
-              "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
-            limit: 1000,
-          },
-        }
-      );
+      const response = await axios.get(import.meta.env.VITE_DATA_API_BASE, {
+        params: {
+          resource_id: "2304b5de-c720-4b5c-bbc7-4cbab85e0ae8",
+          q: cityQuery,
+          fields:
+            "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
+          limit: 1000,
+        },
+      });
 
       const mapped: Facility[] = (response.data.result.records as RawFacility[])
         .map((f) => {
