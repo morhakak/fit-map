@@ -174,12 +174,21 @@ const FacilitiesList = () => {
               <ImSpinner2 className="animate-spin text-gray-200" size={24} />
             )}
           </Button>
-          {isMobile && !!facilities.length && (
+          {/* {isMobile && !!facilities.length && (
             <Button variant="outline" onClick={() => setIsListOpen((v) => !v)}>
               {isListOpen ? "הסתר רשימה" : "הצג רשימה"}
             </Button>
-          )}
+          )} */}
         </div>
+
+        {facilities.length > 0 && (
+          <div
+            className="fixed bottom-0 left-0 right-0 z-10 flex justify-center"
+            onClick={() => setIsListOpen((prev) => !prev)}
+          >
+            <div className="w-12 h-1.5 bg-gray-400 rounded-full my-2 cursor-pointer"></div>
+          </div>
+        )}
         <AnimatePresence>
           {(!isMobile || isListOpen) && facilities.length && (
             <motion.div
@@ -187,40 +196,45 @@ const FacilitiesList = () => {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-20 bg-white max-h-[60vh] rounded-t-2xl shadow-2xl p-4 overflow-y-auto"
+              className="fixed bottom-0 left-0 right-0 z-20 bg-white max-h-[60vh] rounded-t-2xl shadow-2xl overflow-y-auto"
             >
               <div
                 className="w-12 h-1.5 bg-gray-400 rounded-full mx-auto mt-2 mb-3 cursor-pointer"
                 onClick={() => setIsListOpen(false)}
                 title="סגור"
               ></div>
-              <div className="text-center font-semibold mb-3">רשימת מתקנים</div>
-
-              <div className="space-y-2">
-                {facilities.map((facility) => (
-                  <div
-                    key={facility.id}
-                    className="cursor-pointer border p-3 rounded-xl hover:bg-gray-100"
-                    onClick={() => setSelectedFacility(facility)}
-                  >
-                    <div className="flex items-center gap-2 text-lg font-bold">
-                      <span>{getFacilityEmoji(facility.type || "")}</span>
-                      <span>{facility.name}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">{facility.type}</div>
-                    <div className="text-sm text-gray-600">
-                      {facility.street} {facility.houseNumber}
-                    </div>
-                    {facility.accessibility && (
-                      <div className="text-xs text-green-600 flex items-center gap-1">
-                        <MdAccessibleForward size={14} /> נגיש לנכים
+              <div className="px-4">
+                <div className="text-center font-semibold mb-3">
+                  רשימת מתקנים
+                </div>
+                <div className="space-y-2">
+                  {facilities.map((facility) => (
+                    <div
+                      key={facility.id}
+                      className="cursor-pointer border p-3 rounded-xl hover:bg-gray-100"
+                      onClick={() => setSelectedFacility(facility)}
+                    >
+                      <div className="flex items-center gap-2 text-lg font-bold">
+                        <span>{getFacilityEmoji(facility.type || "")}</span>
+                        <span>{facility.name}</span>
                       </div>
-                    )}
-                    <div className="text-xs text-gray-500">
-                      {facility.availability}
+                      <div className="text-sm text-gray-600">
+                        {facility.type}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {facility.street} {facility.houseNumber}
+                      </div>
+                      {facility.accessibility && (
+                        <div className="text-xs text-green-600 flex items-center gap-1">
+                          <MdAccessibleForward size={14} /> נגיש לנכים
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500">
+                        {facility.availability}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}
