@@ -26,6 +26,7 @@ import { toast } from "sonner";
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [allFacilities, setAllFacilities] = useState<Facility[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(
     null
   );
@@ -67,6 +68,7 @@ const FacilitiesList = () => {
     lat: number;
     lng: number;
   } | null>(null);
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -85,6 +87,17 @@ const FacilitiesList = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (allFacilities.length > 0) {
+      const filtered =
+        typeFilter === "all" || typeFilter === ""
+          ? allFacilities
+          : allFacilities.filter((f) => f.type?.includes(typeFilter));
+
+      setFacilities(filtered);
+    }
+  }, [typeFilter, allFacilities]);
+
   const handleSearch = async () => {
     if (!cityQuery.trim()) return;
     setIsLoading(true);
@@ -99,37 +112,42 @@ const FacilitiesList = () => {
         },
       });
 
-      const mapped: Facility[] = (response.data.result.records as RawFacility[])
-        .map((f) => {
-          const x = Number(f["ציר X"]);
-          const y = Number(f["ציר Y"]);
-          const { lat, lng } = fromITMtoWGS84(x, y);
+      const mapped: Facility[] = (
+        response.data.result.records as RawFacility[]
+      ).map((f) => {
+        const x = Number(f["ציר X"]);
+        const y = Number(f["ציר Y"]);
+        const { lat, lng } = fromITMtoWGS84(x, y);
 
-          return {
-            id: f._id,
-            name: f["שם המתקן"],
-            lat,
-            lng,
-            street: f["רחוב"],
-            houseNumber: f["מספר בית"],
-            type: f["סוג מתקן"],
-            schoolServed: !!f["משרת בית ספר"],
-            availability: f["פנוי לפעילות"],
-            accessibility: Boolean(f["נגישות לנכים"]),
-            status: f["מצב המתקן"],
-          };
-        })
-        .filter(
-          (f) =>
-            typeFilter === "" ||
-            typeFilter === "all" ||
-            f.type?.includes(typeFilter)
-        );
+        return {
+          id: f._id,
+          name: f["שם המתקן"],
+          lat,
+          lng,
+          street: f["רחוב"],
+          houseNumber: f["מספר בית"],
+          type: f["סוג מתקן"],
+          schoolServed: !!f["משרת בית ספר"],
+          availability: f["פנוי לפעילות"],
+          accessibility: Boolean(f["נגישות לנכים"]),
+          status: f["מצב המתקן"],
+        };
+      });
 
-      setFacilities(mapped);
+      setAllFacilities(mapped);
 
-      if (mapped.length > 0) {
+      const filtered =
+        typeFilter === "all" || typeFilter === ""
+          ? mapped
+          : mapped.filter((f) => f.type?.includes(typeFilter));
+      setFacilities(filtered);
+
+      if (filtered.length > 0) {
         setIsListOpen(true);
+      }
+
+      if (mapped.length === 0) {
+        toast("לא קיימים מתקני ספורט ברשות המקומית שהזנת");
       }
     } catch (error) {
       console.error("שגיאה בשליפת מתקנים:", error);
@@ -168,7 +186,7 @@ const FacilitiesList = () => {
               onValueChange={setTypeFilter}
               aria-label="סינון לפי סוג מתקן"
             >
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-40" dir="rtl">
                 <SelectValue placeholder="סוג מתקן" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -184,13 +202,13 @@ const FacilitiesList = () => {
                 <SelectItem value="טניס" aria-label="טניס">
                   🎾 טניס
                 </SelectItem>
-                <SelectItem value="שחייה" aria-label="שחייה">
+                <SelectItem value="שחיה" aria-label="שחייה">
                   🏊 שחייה
                 </SelectItem>
                 <SelectItem value="משולב" aria-label="משולב">
                   🏅 משולב
                 </SelectItem>
-                <SelectItem value="חדר כושר" aria-label="כושר">
+                <SelectItem value="כושר" aria-label="כושר">
                   💪 כושר
                 </SelectItem>
                 <SelectItem value="כדורעף" aria-label="כדורעף">
