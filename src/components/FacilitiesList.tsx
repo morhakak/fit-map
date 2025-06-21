@@ -174,11 +174,6 @@ const FacilitiesList = () => {
               <ImSpinner2 className="animate-spin text-gray-200" size={24} />
             )}
           </Button>
-          {/* {isMobile && !!facilities.length && (
-            <Button variant="outline" onClick={() => setIsListOpen((v) => !v)}>
-              {isListOpen ? "הסתר רשימה" : "הצג רשימה"}
-            </Button>
-          )} */}
         </div>
 
         {facilities.length > 0 && (
@@ -192,6 +187,12 @@ const FacilitiesList = () => {
         <AnimatePresence>
           {(!isMobile || isListOpen) && facilities.length && (
             <motion.div
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100) setIsListOpen(false);
+                if (info.offset.y < -100) setIsListOpen(true);
+              }}
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
