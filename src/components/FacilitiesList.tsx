@@ -34,6 +34,7 @@ const FacilitiesList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [isListOpen, setIsListOpen] = useState(false);
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   proj4.defs(
     "EPSG:2039",
@@ -60,8 +61,6 @@ const FacilitiesList = () => {
 
     return "🏃";
   }
-
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   const [userLocation, setUserLocation] = useState<{
     lat: number;
@@ -129,10 +128,6 @@ const FacilitiesList = () => {
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    console.log("is open:", isListOpen);
-  }, [isListOpen]);
-
   return (
     <APIProvider
       apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
@@ -185,7 +180,7 @@ const FacilitiesList = () => {
           </div>
         )}
         <AnimatePresence>
-          {(!isMobile || isListOpen) && facilities.length && (
+          {isMobile && facilities.length > 0 && (
             <motion.div
               drag="y"
               dragConstraints={{ top: 0, bottom: 0 }}
@@ -194,52 +189,88 @@ const FacilitiesList = () => {
                 if (info.offset.y < -100) setIsListOpen(true);
               }}
               initial={{ y: "100%" }}
-              animate={{ y: 0 }}
+              animate={{ y: isListOpen ? 0 : "100%" }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-20 bg-white max-h-[60vh] rounded-t-2xl shadow-2xl overflow-y-auto"
+              className="fixed bottom-0 left-0 right-0 z-20 bg-white max-h-[60vh] rounded-t-2xl shadow-2xl overflow-y-auto touch-pan-y"
             >
               <div
-                className="w-12 h-1.5 bg-gray-400 rounded-full mx-auto mt-2 mb-3 cursor-pointer"
-                onClick={() => setIsListOpen(false)}
-                title="סגור"
-              ></div>
-              <div className="px-4">
-                <div className="text-center font-semibold mb-3">
-                  רשימת מתקנים
-                </div>
-                <div className="space-y-2">
-                  {facilities.map((facility) => (
-                    <div
-                      key={facility.id}
-                      className="cursor-pointer border p-3 rounded-xl hover:bg-gray-100"
-                      onClick={() => setSelectedFacility(facility)}
-                    >
-                      <div className="flex items-center gap-2 text-lg font-bold">
-                        <span>{getFacilityEmoji(facility.type || "")}</span>
-                        <span>{facility.name}</span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {facility.type}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {facility.street} {facility.houseNumber}
-                      </div>
-                      {facility.accessibility && (
-                        <div className="text-xs text-green-600 flex items-center gap-1">
-                          <MdAccessibleForward size={14} /> נגיש לנכים
-                        </div>
-                      )}
-                      <div className="text-xs text-gray-500">
-                        {facility.availability}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                className="flex justify-center items-center gap-1 cursor-pointer py-2"
+                onClick={() => setIsListOpen((prev) => !prev)}
+                title="פתח/סגור רשימה"
+              >
+                <div className="w-12 h-1.5 bg-gray-400 rounded-full" />
               </div>
+              {isListOpen && (
+                <div className="px-4">
+                  <div className="text-center font-semibold mb-3">
+                    רשימת מתקנים
+                  </div>
+                  <div className="space-y-2">
+                    {facilities.map((facility) => (
+                      <div
+                        key={facility.id}
+                        className="cursor-pointer border p-3 rounded-xl hover:bg-gray-100"
+                        onClick={() => setSelectedFacility(facility)}
+                      >
+                        <div className="flex items-center gap-2 text-lg font-bold">
+                          <span>{getFacilityEmoji(facility.type || "")}</span>
+                          <span>{facility.name}</span>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {facility.type}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {facility.street} {facility.houseNumber}
+                        </div>
+                        {facility.accessibility && (
+                          <div className="text-xs text-green-600 flex items-center gap-1">
+                            <MdAccessibleForward size={14} /> נגיש לנכים
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-500">
+                          {facility.availability}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
+
+        {!isMobile && facilities.length > 0 && (
+          <div className="absolute top-0 right-0 w-[350px] h-full bg-white border-l overflow-y-auto shadow-md p-4 z-10">
+            <div className="text-center font-semibold mb-3">רשימת מתקנים</div>
+            <div className="space-y-2">
+              {facilities.map((facility) => (
+                <div
+                  key={facility.id}
+                  className="cursor-pointer border p-3 rounded-xl hover:bg-gray-100"
+                  onClick={() => setSelectedFacility(facility)}
+                >
+                  <div className="flex items-center gap-2 text-lg font-bold">
+                    <span>{getFacilityEmoji(facility.type || "")}</span>
+                    <span>{facility.name}</span>
+                  </div>
+                  <div className="text-sm text-gray-600">{facility.type}</div>
+                  <div className="text-sm text-gray-600">
+                    {facility.street} {facility.houseNumber}
+                  </div>
+                  {facility.accessibility && (
+                    <div className="text-xs text-green-600 flex items-center gap-1">
+                      <MdAccessibleForward size={14} /> נגיש לנכים
+                    </div>
+                  )}
+                  <div className="text-xs text-gray-500">
+                    {facility.availability}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <Map
           defaultCenter={{ lat: 31.877, lng: 34.738 }}
           defaultZoom={14}
