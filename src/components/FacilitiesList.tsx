@@ -47,11 +47,11 @@ const FacilitiesList = () => {
 
   function getFacilityEmoji(type: string): string {
     if (/טניס/.test(type)) return "🎾";
-    if (/כדורגל/.test(type)) return "⚽";
+    if (/כדורגל|דשא סינטטי/.test(type)) return "⚽";
     if (/כדורסל/.test(type)) return "🏀";
     if (/כדורעף/.test(type)) return "🏐";
     if (/התעמלות|חדר כושר|כושר/.test(type)) return "💪";
-    if (/שחייה|בריכה/.test(type)) return "🏊";
+    if (/שחיה|בריכה/.test(type)) return "🏊";
     if (/ריצה|מסלול/.test(type)) return "🏃";
     if (/משולב/.test(type)) return "🏅";
     if (/אופניים|אופני/.test(type)) return "🚴";
