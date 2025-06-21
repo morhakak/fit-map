@@ -20,13 +20,6 @@ import {
 } from "../components/ui/popover";
 import { Checkbox } from "../components/ui/checkbox";
 import { Input } from "../components/ui/input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "../components/ui/select";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { Filter } from "lucide-react";
@@ -427,11 +420,15 @@ const FacilitiesList = () => {
                 </div>
                 <div className="text-base">
                   <span className="font-semibold">כתובת:</span>{" "}
-                  {selectedFacility.street} {selectedFacility.houseNumber}
+                  {selectedFacility.street
+                    ? selectedFacility.street +
+                      " " +
+                      selectedFacility.houseNumber
+                    : "לא צוינה"}
                 </div>
                 <div className="text-base">
                   <span className="font-semibold">זמינות:</span>{" "}
-                  {selectedFacility.availability ?? "לא ידוע"}
+                  {selectedFacility.availability ?? "לא צוין"}
                 </div>
 
                 {selectedFacility.status && (
