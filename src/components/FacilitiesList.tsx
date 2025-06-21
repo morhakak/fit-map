@@ -43,6 +43,7 @@ const FacilitiesList = () => {
   const [cityQuery, setCityQuery] = useState(
     import.meta.env.VITE_DEFAULT_CITY || " "
   );
+  const [previousCityQuery, setPreviousCityQuery] = useState<string>(cityQuery);
   const [isLoading, setIsLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [isListOpen, setIsListOpen] = useState(false);
@@ -130,6 +131,14 @@ const FacilitiesList = () => {
 
   const handleSearch = async () => {
     if (!cityQuery.trim()) return;
+
+    if (cityQuery !== previousCityQuery) {
+      setFacilities([]);
+      setAllFacilities([]);
+      setSelectedFacility(null);
+      setPreviousCityQuery(cityQuery);
+    }
+
     setIsLoading(true);
     try {
       const response = await axios.get(import.meta.env.VITE_DATA_API_BASE, {
@@ -231,7 +240,7 @@ const FacilitiesList = () => {
               )}
             </Button>
             <Popover>
-              <PopoverTrigger asChild>
+              <PopoverTrigger asChild role="dialog">
                 <Button variant="outline" className="hover:cursor-pointer">
                   סנן
                   <Filter />
