@@ -151,7 +151,7 @@ const FacilitiesList = () => {
         role="application"
         aria-label="מפת מתקנים"
       >
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-white p-2 rounded-lg shadow">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-col sm:flex items-center space-y-2 gap-2 sm:space-y-0 bg-white p-2 rounded-lg shadow max-w-[95%]">
           <Input
             type="text"
             value={cityQuery}
@@ -159,34 +159,35 @@ const FacilitiesList = () => {
               setCityQuery(e.target.value)
             }
             placeholder="חפש לפי רשות מקומית..."
-            className="p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
+            className="w-full sm:w-[250px] p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
           />
-
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="סוג מתקן" />
-            </SelectTrigger>
-            <SelectContent dir="rtl">
-              <SelectItem value="all">הכל</SelectItem>
-              <SelectItem value="כדורגל">⚽ כדורגל</SelectItem>
-              <SelectItem value="כדורסל">🏀 כדורסל</SelectItem>
-              <SelectItem value="טניס">🎾 טניס</SelectItem>
-              <SelectItem value="שחייה">🏊 שחייה</SelectItem>
-              <SelectItem value="משולב">🏅 משולב</SelectItem>
-              <SelectItem value="חדר כושר">💪 כושר</SelectItem>
-              <SelectItem value="כדורעף">🏐 כדורעף</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={handleSearch}
-            className="px-4 py-1 bg-blue-500 text-white rounded hover:cursor-pointer hover:bg-blue-600 disabled:bg-blue-500"
-            disabled={isLoading || !cityQuery}
-          >
-            חפש
-            {isLoading && (
-              <ImSpinner2 className="animate-spin text-gray-200" size={24} />
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="סוג מתקן" />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="all">הכל</SelectItem>
+                <SelectItem value="כדורגל">⚽ כדורגל</SelectItem>
+                <SelectItem value="כדורסל">🏀 כדורסל</SelectItem>
+                <SelectItem value="טניס">🎾 טניס</SelectItem>
+                <SelectItem value="שחייה">🏊 שחייה</SelectItem>
+                <SelectItem value="משולב">🏅 משולב</SelectItem>
+                <SelectItem value="חדר כושר">💪 כושר</SelectItem>
+                <SelectItem value="כדורעף">🏐 כדורעף</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={handleSearch}
+              className="px-4 py-1 bg-blue-500 text-white rounded hover:cursor-pointer hover:bg-blue-600 disabled:bg-blue-500 "
+              disabled={isLoading || !cityQuery}
+            >
+              חפש
+              {isLoading && (
+                <ImSpinner2 className="animate-spin text-gray-200" size={24} />
+              )}
+            </Button>
+          </div>
         </div>
 
         {facilities.length > 0 && (
