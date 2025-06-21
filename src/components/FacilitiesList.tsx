@@ -41,7 +41,7 @@ const FacilitiesList = () => {
     null
   );
   const [cityQuery, setCityQuery] = useState(
-    import.meta.env.VITE_DEFAULT_CITY || "תל אביב"
+    import.meta.env.VITE_DEFAULT_CITY || " "
   );
   const [isLoading, setIsLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
@@ -87,6 +87,25 @@ const FacilitiesList = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
+          axios
+            .get("https://nominatim.openstreetmap.org/reverse", {
+              params: {
+                lat: position.coords.latitude,
+                lon: position.coords.longitude,
+                format: "json",
+                "accept-language": "he",
+              },
+            })
+            .then((res) => {
+              const cityName =
+                res.data?.address?.city ||
+                res.data?.address?.town ||
+                res.data?.address?.village;
+              if (cityName) setCityQuery(cityName);
+            })
+            .catch(() => {
+              console.warn("לא הצלחנו לשחזר את שם העיר מהמיקום");
+            });
         },
         () => {
           setUserLocation({ lat: 31.877, lng: 34.738 });
