@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -29,7 +30,7 @@ const FacilitiesList = () => {
     null
   );
   const [cityQuery, setCityQuery] = useState(
-    import.meta.env.VITE_DEFAULT_CITY || "יבנה"
+    import.meta.env.VITE_DEFAULT_CITY || "תל אביב"
   );
   const [isLoading, setIsLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("");
@@ -87,45 +88,58 @@ const FacilitiesList = () => {
   const handleSearch = async () => {
     if (!cityQuery.trim()) return;
     setIsLoading(true);
-    const response = await axios.get(import.meta.env.VITE_DATA_API_BASE, {
-      params: {
-        resource_id: "2304b5de-c720-4b5c-bbc7-4cbab85e0ae8",
-        q: cityQuery,
-        fields:
-          "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
-        limit: 1000,
-      },
-    });
-
-    const mapped: Facility[] = (response.data.result.records as RawFacility[])
-      .map((f) => {
-        const x = Number(f["ציר X"]);
-        const y = Number(f["ציר Y"]);
-        const { lat, lng } = fromITMtoWGS84(x, y);
-
-        return {
-          id: f._id,
-          name: f["שם המתקן"],
-          lat,
-          lng,
-          street: f["רחוב"],
-          houseNumber: f["מספר בית"],
-          type: f["סוג מתקן"],
-          schoolServed: !!f["משרת בית ספר"],
-          availability: f["פנוי לפעילות"],
-          accessibility: Boolean(f["נגישות לנכים"]),
-          status: f["מצב המתקן"],
-        };
-      })
-      .filter(
-        (f) =>
-          typeFilter === "" ||
-          typeFilter === "all" ||
-          f.type?.includes(typeFilter)
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_DATA_API_BASE + "123",
+        {
+          params: {
+            resource_id: "2304b5de-c720-4b5c-bbc7-4cbab85e0ae8",
+            q: cityQuery,
+            fields:
+              "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
+            limit: 1000,
+          },
+        }
       );
 
-    setFacilities(mapped);
-    setIsLoading(false);
+      const mapped: Facility[] = (response.data.result.records as RawFacility[])
+        .map((f) => {
+          const x = Number(f["ציר X"]);
+          const y = Number(f["ציר Y"]);
+          const { lat, lng } = fromITMtoWGS84(x, y);
+
+          return {
+            id: f._id,
+            name: f["שם המתקן"],
+            lat,
+            lng,
+            street: f["רחוב"],
+            houseNumber: f["מספר בית"],
+            type: f["סוג מתקן"],
+            schoolServed: !!f["משרת בית ספר"],
+            availability: f["פנוי לפעילות"],
+            accessibility: Boolean(f["נגישות לנכים"]),
+            status: f["מצב המתקן"],
+          };
+        })
+        .filter(
+          (f) =>
+            typeFilter === "" ||
+            typeFilter === "all" ||
+            f.type?.includes(typeFilter)
+        );
+
+      setFacilities(mapped);
+
+      if (mapped.length > 0) {
+        setIsListOpen(true);
+      }
+    } catch (error) {
+      console.error("שגיאה בשליפת מתקנים:", error);
+      toast.error("אירעה שגיאה במהלך החיפוש. נסה שוב מאוחר יותר.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -133,7 +147,13 @@ const FacilitiesList = () => {
       apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
       language="iw"
     >
-      <div className="relative w-full h-screen" dir="rtl" lang="he">
+      <div
+        className="relative w-full h-screen"
+        dir="rtl"
+        lang="he"
+        role="application"
+        aria-label="מפת מתקנים"
+      >
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-white p-2 rounded-lg shadow">
           <Input
             type="text"
@@ -144,6 +164,7 @@ const FacilitiesList = () => {
             placeholder="חפש לפי רשות מקומית..."
             className="p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
           />
+
           <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="סוג מתקן" />
@@ -241,17 +262,30 @@ const FacilitiesList = () => {
         </AnimatePresence>
 
         {!isMobile && facilities.length > 0 && (
-          <div className="absolute top-0 right-0 w-[350px] h-full bg-white border-l overflow-y-auto shadow-md p-4 z-10">
+          <div
+            className="absolute top-0 right-0 w-[350px] h-full bg-white border-l overflow-y-auto shadow-md p-4 z-10"
+            aria-label="רשימת מתקנים"
+            role="complementary"
+          >
             <div className="text-center font-semibold mb-3">רשימת מתקנים</div>
-            <div className="space-y-2">
+            <div
+              className="space-y-2"
+              role="list"
+              aria-labelledby="facility-list-title"
+            >
               {facilities.map((facility) => (
                 <div
                   key={facility.id}
                   className="cursor-pointer border p-3 rounded-xl hover:bg-gray-100"
                   onClick={() => setSelectedFacility(facility)}
+                  role="listitem"
+                  tabIndex={0}
+                  aria-label={`בחר את ${facility.name}`}
                 >
                   <div className="flex items-center gap-2 text-lg font-bold">
-                    <span>{getFacilityEmoji(facility.type || "")}</span>
+                    <span aria-hidden="true">
+                      {getFacilityEmoji(facility.type || "")}
+                    </span>
                     <span>{facility.name}</span>
                   </div>
                   <div className="text-sm text-gray-600">{facility.type}</div>
@@ -260,7 +294,8 @@ const FacilitiesList = () => {
                   </div>
                   {facility.accessibility && (
                     <div className="text-xs text-green-600 flex items-center gap-1">
-                      <MdAccessibleForward size={14} /> נגיש לנכים
+                      <MdAccessibleForward size={14} aria-hidden="true" /> נגיש
+                      לנכים
                     </div>
                   )}
                   <div className="text-xs text-gray-500">
