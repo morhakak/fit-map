@@ -158,29 +158,51 @@ const FacilitiesList = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setCityQuery(e.target.value)
             }
+            aria-label="חיפוש לפי עיר או רשות מקומית"
             placeholder="חפש לפי רשות מקומית..."
             className="w-full sm:w-[250px] p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
           />
           <div className="flex gap-2">
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <Select
+              value={typeFilter}
+              onValueChange={setTypeFilter}
+              aria-label="סינון לפי סוג מתקן"
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="סוג מתקן" />
               </SelectTrigger>
               <SelectContent dir="rtl">
-                <SelectItem value="all">הכל</SelectItem>
-                <SelectItem value="כדורגל">⚽ כדורגל</SelectItem>
-                <SelectItem value="כדורסל">🏀 כדורסל</SelectItem>
-                <SelectItem value="טניס">🎾 טניס</SelectItem>
-                <SelectItem value="שחייה">🏊 שחייה</SelectItem>
-                <SelectItem value="משולב">🏅 משולב</SelectItem>
-                <SelectItem value="חדר כושר">💪 כושר</SelectItem>
-                <SelectItem value="כדורעף">🏐 כדורעף</SelectItem>
+                <SelectItem value="all" aria-label="הכל">
+                  הכל
+                </SelectItem>
+                <SelectItem value="כדורגל" aria-label="כדורגל">
+                  ⚽ כדורגל
+                </SelectItem>
+                <SelectItem value="כדורסל" aria-label="כדורסל">
+                  🏀 כדורסל
+                </SelectItem>
+                <SelectItem value="טניס" aria-label="טניס">
+                  🎾 טניס
+                </SelectItem>
+                <SelectItem value="שחייה" aria-label="שחייה">
+                  🏊 שחייה
+                </SelectItem>
+                <SelectItem value="משולב" aria-label="משולב">
+                  🏅 משולב
+                </SelectItem>
+                <SelectItem value="חדר כושר" aria-label="כושר">
+                  💪 כושר
+                </SelectItem>
+                <SelectItem value="כדורעף" aria-label="כדורעף">
+                  🏐 כדורעף
+                </SelectItem>
               </SelectContent>
             </Select>
             <Button
               onClick={handleSearch}
               className="px-4 py-1 bg-blue-500 text-white rounded hover:cursor-pointer hover:bg-blue-600 disabled:bg-blue-500 "
               disabled={isLoading || !cityQuery}
+              aria-label="בצע חיפוש"
             >
               חפש
               {isLoading && (
@@ -217,6 +239,9 @@ const FacilitiesList = () => {
                 className="flex justify-center items-center gap-1 cursor-pointer py-2"
                 onClick={() => setIsListOpen((prev) => !prev)}
                 title="פתח/סגור רשימה"
+                aria-label={
+                  isListOpen ? "סגור רשימת מתקנים" : "פתח רשימת מתקנים"
+                }
               >
                 <div className="w-12 h-1.5 bg-gray-400 rounded-full" />
               </div>
@@ -338,17 +363,22 @@ const FacilitiesList = () => {
                 lng: selectedFacility.lng,
               }}
               onCloseClick={() => setSelectedFacility(null)}
+              aria-label={`פרטים על המתקן ${selectedFacility.name}`}
             >
               <div
                 dir="rtl"
                 lang="he"
                 className="text-right leading-relaxed space-y-1"
               >
-                <div className="flex items-center gap-2 text-xl font-bold">
+                <div
+                  className="flex items-center gap-2 text-xl font-bold"
+                  role="document"
+                  aria-labelledby="info-title"
+                >
                   <span className="text-xl">
                     {getFacilityEmoji(selectedFacility.type ?? "")}
                   </span>
-                  <span>{selectedFacility.name}</span>
+                  <h3 id="info-title">{selectedFacility.name}</h3>
                   {selectedFacility.schoolServed && (
                     <MdSchool
                       className="text-blue-600"
@@ -389,6 +419,7 @@ const FacilitiesList = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 text-sm"
+                      aria-label={`ניווט אל ${selectedFacility.name} עם Waze`}
                     >
                       <FaWaze size={18} />
                       ניווט עם Waze
@@ -400,6 +431,7 @@ const FacilitiesList = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+                    aria-label={`ניווט אל ${selectedFacility.name} עם Google Maps`}
                   >
                     <FaGoogle size={18} />
                     ניווט עם Google
