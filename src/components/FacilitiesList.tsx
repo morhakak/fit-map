@@ -13,16 +13,33 @@ import { MdSchool, MdAccessibleForward } from "react-icons/md";
 import { FaGoogle, FaWaze } from "react-icons/fa";
 import { ImSpinner2 } from "react-icons/im";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "../components/ui/popover";
+import { Checkbox } from "../components/ui/checkbox";
+import { Input } from "../components/ui/input";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "../components/ui/select";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
+import { Filter } from "lucide-react";
+
+const allTypes = [
+  "כדורגל",
+  "כדורסל",
+  "טניס",
+  "שחיה",
+  "כושר",
+  "כדורעף",
+  "משולב",
+];
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -34,7 +51,7 @@ const FacilitiesList = () => {
     import.meta.env.VITE_DEFAULT_CITY || "תל אביב"
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [typeFilter, setTypeFilter] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [isListOpen, setIsListOpen] = useState(false);
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -90,10 +107,11 @@ const FacilitiesList = () => {
   useEffect(() => {
     if (allFacilities.length > 0) {
       const filtered =
-        typeFilter === "all" || typeFilter === ""
+        typeFilter.length === 0
           ? allFacilities
-          : allFacilities.filter((f) => f.type?.includes(typeFilter));
-
+          : allFacilities.filter((f) =>
+              typeFilter.some((type) => f.type?.includes(type))
+            );
       setFacilities(filtered);
     }
   }, [typeFilter, allFacilities]);
@@ -137,9 +155,11 @@ const FacilitiesList = () => {
       setAllFacilities(mapped);
 
       const filtered =
-        typeFilter === "all" || typeFilter === ""
+        typeFilter.length === 0
           ? mapped
-          : mapped.filter((f) => f.type?.includes(typeFilter));
+          : mapped.filter((f) =>
+              typeFilter.some((type) => f.type?.includes(type))
+            );
       setFacilities(filtered);
 
       if (filtered.length > 0) {
@@ -155,6 +175,12 @@ const FacilitiesList = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleType = (type: string) => {
+    setTypeFilter((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
   };
 
   return (
@@ -181,41 +207,6 @@ const FacilitiesList = () => {
             className="w-full sm:w-[250px] p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
           />
           <div className="flex gap-2">
-            <Select
-              value={typeFilter}
-              onValueChange={setTypeFilter}
-              aria-label="סינון לפי סוג מתקן"
-            >
-              <SelectTrigger className="w-40" dir="rtl">
-                <SelectValue placeholder="סוג מתקן" />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                <SelectItem value="all" aria-label="הכל">
-                  הכל
-                </SelectItem>
-                <SelectItem value="כדורגל" aria-label="כדורגל">
-                  ⚽ כדורגל
-                </SelectItem>
-                <SelectItem value="כדורסל" aria-label="כדורסל">
-                  🏀 כדורסל
-                </SelectItem>
-                <SelectItem value="טניס" aria-label="טניס">
-                  🎾 טניס
-                </SelectItem>
-                <SelectItem value="שחיה" aria-label="שחייה">
-                  🏊 שחייה
-                </SelectItem>
-                <SelectItem value="משולב" aria-label="משולב">
-                  🏅 משולב
-                </SelectItem>
-                <SelectItem value="כושר" aria-label="כושר">
-                  💪 כושר
-                </SelectItem>
-                <SelectItem value="כדורעף" aria-label="כדורעף">
-                  🏐 כדורעף
-                </SelectItem>
-              </SelectContent>
-            </Select>
             <Button
               onClick={handleSearch}
               className="px-4 py-1 bg-blue-500 text-white rounded hover:cursor-pointer hover:bg-blue-600 disabled:bg-blue-500 "
@@ -227,6 +218,31 @@ const FacilitiesList = () => {
                 <ImSpinner2 className="animate-spin text-gray-200" size={24} />
               )}
             </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="hover:cursor-pointer">
+                  סנן
+                  <Filter />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48" side="bottom" align="start">
+                <div className="space-y-2">
+                  {allTypes.map((type) => (
+                    <div key={type} className="flex items-center gap-2">
+                      <Checkbox
+                        id={type}
+                        checked={typeFilter.includes(type)}
+                        onCheckedChange={() => toggleType(type)}
+                        className="hover:cursor-pointer"
+                      />
+                      <label htmlFor={type} className="text-sm">
+                        {getFacilityEmoji(type)} {type}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
