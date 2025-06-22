@@ -273,7 +273,8 @@ const FacilitiesList = () => {
               animate={{ y: isListOpen ? 0 : "100%" }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-20 bg-white h-[60vh] rounded-t-2xl shadow-2xl overflow-y-auto touch-pan-y"
+              className="fixed bottom-0 left-0 right-0 z-20 bg-white h-[60vh] rounded-t-2xl shadow-2xl overflow-y-auto touch-pan-y overscroll-contain"
+              style={{ WebkitOverflowScrolling: "touch" }}
             >
               <div
                 className="flex justify-center items-center gap-1 cursor-pointer py-2"
