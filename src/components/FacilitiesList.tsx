@@ -182,13 +182,20 @@ const FacilitiesList = () => {
     );
   };
 
+  useEffect(() => {
+    document.body.style.overflow = isListOpen ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isListOpen]);
+
   return (
     <APIProvider
       apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
       language="iw"
     >
       <div
-        className="relative w-full h-screen"
+        className="relative w-full h-screen flex flex-col lg:flex-row"
         dir="rtl"
         lang="he"
         role="application"
