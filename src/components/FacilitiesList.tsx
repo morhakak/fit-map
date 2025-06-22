@@ -23,16 +23,7 @@ import { Input } from "../components/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { Filter } from "lucide-react";
-
-const allTypes = [
-  "כדורגל",
-  "כדורסל",
-  "טניס",
-  "שחיה",
-  "כושר",
-  "כדורעף",
-  "משולב",
-];
+import { allTypes, EPSG_2039_DEF, getFacilityEmoji } from "../constants";
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -40,40 +31,19 @@ const FacilitiesList = () => {
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(
     null
   );
-  const [cityQuery, setCityQuery] = useState(
-    import.meta.env.VITE_DEFAULT_CITY || " "
-  );
+  const [cityQuery, setCityQuery] = useState("");
   const [previousCityQuery, setPreviousCityQuery] = useState<string>(cityQuery);
   const [isLoading, setIsLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [isListOpen, setIsListOpen] = useState(false);
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  proj4.defs(
-    "EPSG:2039",
-    "+proj=tmerc +lat_0=31.7343936111111 +lon_0=35.2045169444444 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +units=m +no_defs"
-  );
+  proj4.defs("EPSG:2039", EPSG_2039_DEF);
 
   const fromITMtoWGS84 = (x: number, y: number) => {
     const [lng, lat] = proj4("EPSG:2039", "WGS84", [x, y]);
     return { lat, lng };
   };
-
-  function getFacilityEmoji(type: string): string {
-    if (/טניס/.test(type)) return "🎾";
-    if (/כדורגל|דשא סינטטי/.test(type)) return "⚽";
-    if (/כדורסל/.test(type)) return "🏀";
-    if (/כדורעף/.test(type)) return "🏐";
-    if (/התעמלות|חדר כושר|כושר/.test(type)) return "💪";
-    if (/שחיה|בריכה/.test(type)) return "🏊";
-    if (/ריצה|מסלול/.test(type)) return "🏃";
-    if (/משולב/.test(type)) return "🏅";
-    if (/אופניים|אופני/.test(type)) return "🚴";
-    if (/טיפוס/.test(type)) return "🧗";
-    if (/אולם/.test(type)) return "🏟️";
-
-    return "🏃";
-  }
 
   const [userLocation, setUserLocation] = useState<{
     lat: number;
@@ -108,8 +78,16 @@ const FacilitiesList = () => {
               console.warn("לא הצלחנו לשחזר את שם העיר מהמיקום");
             });
         },
-        () => {
+        (error) => {
           setUserLocation({ lat: 31.877, lng: 34.738 });
+          if (error.code === error.PERMISSION_DENIED) {
+            toast(
+              "לא ניתן לגשת למיקום שלך. הפעל הרשאות מיקום או הזן עיר ידנית.",
+              {
+                duration: 6000,
+              }
+            );
+          }
         }
       );
     } else {
