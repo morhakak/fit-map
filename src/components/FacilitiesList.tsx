@@ -263,12 +263,6 @@ const FacilitiesList = () => {
         <AnimatePresence>
           {isMobile && facilities.length > 0 && (
             <motion.div
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              onDragEnd={(_, info) => {
-                if (info.offset.y > 100) setIsListOpen(false);
-                if (info.offset.y < -100) setIsListOpen(true);
-              }}
               initial={{ y: "100%" }}
               animate={{ y: isListOpen ? 0 : "100%" }}
               exit={{ y: "100%" }}
