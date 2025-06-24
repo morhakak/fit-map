@@ -37,6 +37,7 @@ const FacilitiesList = () => {
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [isListOpen, setIsListOpen] = useState(false);
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const [errorMessage, setErrorMessage] = useState("");
 
   proj4.defs("EPSG:2039", EPSG_2039_DEF);
 
@@ -81,11 +82,8 @@ const FacilitiesList = () => {
         (error) => {
           setUserLocation({ lat: 31.877, lng: 34.738 });
           if (error.code === error.PERMISSION_DENIED) {
-            toast(
-              "לא ניתן לגשת למיקום שלך. הפעל הרשאות מיקום או הזן עיר ידנית.",
-              {
-                duration: 6000,
-              }
+            toast.info(
+              "לא ניתן לגשת למיקום שלך. הפעל הרשאות מיקום או הזן עיר ידנית."
             );
           }
         }
@@ -107,9 +105,19 @@ const FacilitiesList = () => {
     }
   }, [typeFilter, allFacilities]);
 
+  const isValidInput = (text: string): boolean => {
+    const hebrewRegex = /^[\u0590-\u05FF\s]+$/;
+    return hebrewRegex.test(text.trim()) && text.trim().length <= 50;
+  };
+
   const handleSearch = async () => {
     if (!cityQuery.trim()) return;
 
+    if (!isValidInput(cityQuery)) {
+      toast.warning("יש להזין עד 50 תווים בעברית בלבד");
+      return;
+    }
+    console.log("עברית");
     if (cityQuery !== previousCityQuery) {
       setFacilities([]);
       setAllFacilities([]);
@@ -166,7 +174,7 @@ const FacilitiesList = () => {
       }
 
       if (mapped.length === 0) {
-        toast("לא קיימים מתקני ספורט ברשות המקומית שהזנת");
+        toast.info("לא קיימים מתקני ספורט ברשות המקומית שהזנת");
       }
     } catch (error) {
       console.error("שגיאה בשליפת מתקנים:", error);
@@ -205,9 +213,15 @@ const FacilitiesList = () => {
           <Input
             type="text"
             value={cityQuery}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setCityQuery(e.target.value)
-            }
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              setCityQuery(value);
+              if (!isValidInput(value)) {
+                setErrorMessage("יש להזין עד 50 תווים בעברית בלבד");
+              } else {
+                setErrorMessage("");
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleSearch();
@@ -217,11 +231,16 @@ const FacilitiesList = () => {
             placeholder="חפש לפי רשות מקומית..."
             className="w-full sm:w-[250px] p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
           />
+          {errorMessage && (
+            <div className="text-red-500 text-sm mt-1 text-right">
+              {errorMessage}
+            </div>
+          )}
           <div className="flex gap-2">
             <Button
               onClick={handleSearch}
               className="px-4 py-1 bg-blue-500 text-white rounded hover:cursor-pointer hover:bg-blue-600 disabled:bg-blue-500 "
-              disabled={isLoading || !cityQuery}
+              disabled={isLoading || !cityQuery || !isValidInput(cityQuery)}
               aria-label="בצע חיפוש"
             >
               חפש
