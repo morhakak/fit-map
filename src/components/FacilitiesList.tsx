@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   APIProvider,
@@ -7,23 +7,15 @@ import {
   Pin,
   InfoWindow,
 } from "@vis.gl/react-google-maps";
-import proj4 from "proj4";
 import type { Facility, RawFacility } from "../types/facility";
 import { MdSchool, MdAccessibleForward } from "react-icons/md";
 import { FaGoogle, FaWaze } from "react-icons/fa";
-import { ImSpinner2 } from "react-icons/im";
-import { Button } from "../components/ui/button";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "../components/ui/popover";
-import { Checkbox } from "../components/ui/checkbox";
-import { Input } from "../components/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { Filter } from "lucide-react";
-import { allTypes, EPSG_2039_DEF, getFacilityEmoji } from "../constants";
+import { getFacilityEmoji } from "../constants";
+import { useUserLocation } from "@/hooks/useUserLocation";
+import { fromITMtoWGS84 } from "@/utils/projection";
+import FacilitySearchUI from "@/components/FacilitySearchUI";
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -38,60 +30,13 @@ const FacilitiesList = () => {
   const [isListOpen, setIsListOpen] = useState(false);
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const [errorMessage, setErrorMessage] = useState("");
-
-  proj4.defs("EPSG:2039", EPSG_2039_DEF);
-
-  const fromITMtoWGS84 = (x: number, y: number) => {
-    const [lng, lat] = proj4("EPSG:2039", "WGS84", [x, y]);
-    return { lat, lng };
-  };
-
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+  const { userLocation, resolvedCity } = useUserLocation();
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-          axios
-            .get(import.meta.env.VITE_NOMINATIM_API_BASE, {
-              params: {
-                lat: position.coords.latitude,
-                lon: position.coords.longitude,
-                format: "json",
-                "accept-language": "he",
-              },
-            })
-            .then((res) => {
-              const cityName =
-                res.data?.address?.city ||
-                res.data?.address?.town ||
-                res.data?.address?.village;
-              if (cityName) setCityQuery(cityName);
-            })
-            .catch(() => {
-              console.warn("לא הצלחנו לשחזר את שם העיר מהמיקום");
-            });
-        },
-        (error) => {
-          setUserLocation({ lat: 31.877, lng: 34.738 });
-          if (error.code === error.PERMISSION_DENIED) {
-            toast.info(
-              "לא ניתן לגשת למיקום שלך. הפעל הרשאות מיקום או הזן עיר ידנית."
-            );
-          }
-        }
-      );
-    } else {
-      setUserLocation({ lat: 31.877, lng: 34.738 });
+    if (resolvedCity) {
+      setCityQuery(resolvedCity);
     }
-  }, []);
+  }, [resolvedCity]);
 
   useEffect(() => {
     if (allFacilities.length > 0) {
@@ -117,7 +62,6 @@ const FacilitiesList = () => {
       toast.warning("יש להזין עד 50 תווים בעברית בלבד");
       return;
     }
-    console.log("עברית");
     if (cityQuery !== previousCityQuery) {
       setFacilities([]);
       setAllFacilities([]);
@@ -129,7 +73,7 @@ const FacilitiesList = () => {
     try {
       const response = await axios.get(import.meta.env.VITE_DATA_API_BASE, {
         params: {
-          resource_id: "2304b5de-c720-4b5c-bbc7-4cbab85e0ae8",
+          resource_id: import.meta.env.VITE_DATA_API_SOURCE_ID,
           q: cityQuery,
           fields:
             "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
@@ -209,72 +153,16 @@ const FacilitiesList = () => {
         role="application"
         aria-label="מפת מתקנים"
       >
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-col sm:flex items-center space-y-2 gap-2 sm:space-y-0 bg-white p-2 rounded-lg shadow max-w-[95%]">
-          <Input
-            type="text"
-            value={cityQuery}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              const value = e.target.value;
-              setCityQuery(value);
-              if (!isValidInput(value)) {
-                setErrorMessage("יש להזין עד 50 תווים בעברית בלבד");
-              } else {
-                setErrorMessage("");
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-            aria-label="חיפוש לפי עיר או רשות מקומית"
-            placeholder="חפש לפי רשות מקומית..."
-            className="w-full sm:w-[250px] p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
-          />
-          {errorMessage && (
-            <div className="text-red-500 text-sm mt-1 text-right">
-              {errorMessage}
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Button
-              onClick={handleSearch}
-              className="px-4 py-1 bg-blue-500 text-white rounded hover:cursor-pointer hover:bg-blue-600 disabled:bg-blue-500 "
-              disabled={isLoading || !cityQuery || !isValidInput(cityQuery)}
-              aria-label="בצע חיפוש"
-            >
-              חפש
-              {isLoading && (
-                <ImSpinner2 className="animate-spin text-gray-200" size={24} />
-              )}
-            </Button>
-            <Popover>
-              <PopoverTrigger asChild role="dialog">
-                <Button variant="outline" className="hover:cursor-pointer">
-                  סנן
-                  <Filter />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48" side="bottom" align="start">
-                <div className="space-y-2">
-                  {allTypes.map((type) => (
-                    <div key={type} className="flex items-center gap-2">
-                      <Checkbox
-                        id={type}
-                        checked={typeFilter.includes(type)}
-                        onCheckedChange={() => toggleType(type)}
-                        className="hover:cursor-pointer"
-                      />
-                      <label htmlFor={type} className="text-sm">
-                        {getFacilityEmoji(type)} {type}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
+        <FacilitySearchUI
+          cityQuery={cityQuery}
+          setCityQuery={setCityQuery}
+          handleSearch={handleSearch}
+          isLoading={isLoading}
+          typeFilter={typeFilter}
+          toggleType={toggleType}
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
 
         {facilities.length > 0 && (
           <div
