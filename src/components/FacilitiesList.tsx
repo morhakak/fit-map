@@ -59,7 +59,7 @@ const FacilitiesList = () => {
             lng: position.coords.longitude,
           });
           axios
-            .get("https://nominatim.openstreetmap.org/reverse", {
+            .get(import.meta.env.VITE_NOMINATIM_API_BASE, {
               params: {
                 lat: position.coords.latitude,
                 lon: position.coords.longitude,
