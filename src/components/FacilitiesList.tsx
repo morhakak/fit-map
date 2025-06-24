@@ -208,6 +208,11 @@ const FacilitiesList = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setCityQuery(e.target.value)
             }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
             aria-label="חיפוש לפי עיר או רשות מקומית"
             placeholder="חפש לפי רשות מקומית..."
             className="w-full sm:w-[250px] p-2 rounded-lg border text-right outline-0 placeholder:text-gray-500"
