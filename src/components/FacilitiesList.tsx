@@ -1,21 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  APIProvider,
-  Map,
-  AdvancedMarker,
-  Pin,
-  InfoWindow,
-} from "@vis.gl/react-google-maps";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import type { Facility, RawFacility } from "../types/facility";
-import { MdSchool, MdAccessibleForward } from "react-icons/md";
-import { FaGoogle, FaWaze } from "react-icons/fa";
 import { toast } from "sonner";
-import { getFacilityEmoji } from "../constants";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { fromITMtoWGS84 } from "@/utils/projection";
 import FacilitySearchUI from "@/components/FacilitySearchUI";
 import FacilityListPanel from "./FacilityListPanel";
+import FacilityMap from "./FacilityMap";
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -172,122 +164,13 @@ const FacilitiesList = () => {
           setSelectedFacility={setSelectedFacility}
         />
 
-        <Map
-          defaultCenter={{ lat: 31.877, lng: 34.738 }}
-          defaultZoom={14}
-          style={{ width: "100%", height: "600px" }}
-          mapId="DEMO_MAP_ID"
-        >
-          {userLocation && (
-            <AdvancedMarker position={userLocation} title="המיקום שלך">
-              <Pin background="red" glyphColor="white" />
-            </AdvancedMarker>
-          )}
-
-          {facilities.map((facility) => (
-            <AdvancedMarker
-              onClick={() => setSelectedFacility(facility)}
-              key={facility.id}
-              position={{ lat: facility.lat, lng: facility.lng }}
-              title={facility.name}
-            >
-              <Pin
-                background={"white"}
-                glyphColor="white"
-                borderColor="black"
-                glyph={getFacilityEmoji(facility.type ?? "")}
-              />
-            </AdvancedMarker>
-          ))}
-          {selectedFacility && (
-            <InfoWindow
-              position={{
-                lat: selectedFacility.lat,
-                lng: selectedFacility.lng,
-              }}
-              onCloseClick={() => setSelectedFacility(null)}
-              aria-label={`פרטים על המתקן ${selectedFacility.name}`}
-            >
-              <div
-                dir="rtl"
-                lang="he"
-                className="text-right leading-relaxed space-y-1"
-              >
-                <div
-                  className="flex items-center gap-2 text-xl font-bold"
-                  role="document"
-                  aria-labelledby="info-title"
-                >
-                  <span className="text-xl">
-                    {getFacilityEmoji(selectedFacility.type ?? "")}
-                  </span>
-                  <h3 id="info-title">{selectedFacility.name}</h3>
-                  {selectedFacility.schoolServed && (
-                    <MdSchool
-                      className="text-blue-600"
-                      size={28}
-                      title="משרת בית ספר"
-                    />
-                  )}
-                </div>
-                <div className="text-base">
-                  <span className="font-semibold">סוג מתקן:</span>{" "}
-                  {selectedFacility.type}
-                </div>
-                <div className="text-base">
-                  <span className="font-semibold">כתובת:</span>{" "}
-                  {selectedFacility.street
-                    ? selectedFacility.street +
-                      " " +
-                      selectedFacility.houseNumber
-                    : "לא צוינה"}
-                </div>
-                <div className="text-base">
-                  <span className="font-semibold">זמינות:</span>{" "}
-                  {selectedFacility.availability ?? "לא צוין"}
-                </div>
-
-                {selectedFacility.status && (
-                  <div className="text-base">
-                    <span className="font-semibold">מצב המתקן:</span>{" "}
-                    {selectedFacility.status}
-                  </div>
-                )}
-                {selectedFacility.accessibility && (
-                  <div className="flex items-center gap-2 text-base text-green-700">
-                    <MdAccessibleForward size={20} />
-                    <span>נגיש לנכים</span>
-                  </div>
-                )}
-                <div className="flex gap-2 mt-2">
-                  {isMobile && (
-                    <a
-                      href={`https://waze.com/ul?ll=${selectedFacility.lat},${selectedFacility.lng}&navigate=yes`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 text-sm"
-                      aria-label={`ניווט אל ${selectedFacility.name} עם Waze`}
-                    >
-                      <FaWaze size={18} />
-                      ניווט עם Waze
-                    </a>
-                  )}
-
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${selectedFacility.lat},${selectedFacility.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
-                    aria-label={`ניווט אל ${selectedFacility.name} עם Google Maps`}
-                  >
-                    <FaGoogle size={18} />
-                    ניווט עם Google
-                  </a>
-                </div>
-              </div>
-            </InfoWindow>
-          )}
-        </Map>
+        <FacilityMap
+          facilities={facilities}
+          userLocation={userLocation}
+          selectedFacility={selectedFacility}
+          setSelectedFacility={setSelectedFacility}
+          isMobile={isMobile}
+        />
       </div>
     </APIProvider>
   );
