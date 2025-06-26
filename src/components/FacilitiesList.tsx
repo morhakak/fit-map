@@ -63,16 +63,9 @@ const FacilitiesList = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.get(import.meta.env.VITE_DATA_API_BASE, {
-        params: {
-          resource_id: import.meta.env.VITE_DATA_API_SOURCE_ID,
-          q: cityQuery,
-          fields:
-            "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
-          limit: 1000,
-        },
+      const response = await axios.get("/api/facilities", {
+        params: { q: cityQuery },
       });
-
       const mapped: Facility[] = (
         response.data.result.records as RawFacility[]
       ).map((f) => {
