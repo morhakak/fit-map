@@ -11,18 +11,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const response = await axios.get(
-      "https://data.gov.il/api/3/action/datastore_search",
-      {
-        params: {
-          resource_id: process.env.DATA_SOURCE_ID,
-          q,
-          fields:
-            "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
-          limit: 1000,
-        },
-      }
-    );
+    const response = await axios.get(import.meta.env.VITE_DATA_API_BASE, {
+      params: {
+        resource_id: import.meta.env.VITE_DATA_API_SOURCE_ID,
+        q,
+        fields:
+          "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",
+        limit: 1000,
+      },
+    });
 
     res.status(200).json(response.data);
   } catch (err: unknown) {
