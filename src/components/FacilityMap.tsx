@@ -22,7 +22,7 @@ export default function FacilityMap({
     <Map
       defaultCenter={{ lat: 31.877, lng: 34.738 }}
       defaultZoom={14}
-      style={{ width: "100%", height: "600px" }}
+      style={{ width: "100%", height: "100%" }}
       mapId="DEMO_MAP_ID"
     >
       {userLocation && (
