@@ -11,9 +11,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const response = await axios.get(import.meta.env.VITE_DATA_API_BASE, {
+    const response = await axios.get(process.env.VITE_DATA_API_BASE || "", {
       params: {
-        resource_id: import.meta.env.VITE_DATA_API_SOURCE_ID,
+        resource_id: process.env.VITE_DATA_API_SOURCE_ID,
         q,
         fields:
           "_id,רשות מקומית,מספר זיהוי,שם המתקן,סוג מתקן,רחוב,מספר בית,פנוי לפעילות,תאורה קיימת,נגישות לנכים,מצב המתקן,חניה לרכבים,משרת בית ספר,ציר X,ציר Y",

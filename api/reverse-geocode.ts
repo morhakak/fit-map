@@ -9,17 +9,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const response = await axios.get(import.meta.env.VITE_NOMINATIM_API_BASE, {
-      params: {
-        lat,
-        lon,
-        format: "json",
-        "accept-language": "he",
-      },
-      headers: {
-        "User-Agent": import.meta.env.VITE_OSM_USER_AGENT,
-      },
-    });
+    const response = await axios.get(
+      process.env.VITE_NOMINATIM_API_BASE || "",
+      {
+        params: {
+          lat,
+          lon,
+          format: "json",
+          "accept-language": "he",
+        },
+        headers: {
+          "User-Agent": process.env.VITE_OSM_USER_AGENT,
+        },
+      }
+    );
 
     return res.status(200).json(response.data);
   } catch (error) {
