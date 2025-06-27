@@ -55,7 +55,12 @@ export default function FacilityListPanel({
                     <FacilityItem
                       key={facility.id}
                       facility={facility}
-                      onSelect={setSelectedFacility}
+                      onSelect={() => {
+                        setSelectedFacility(facility);
+                        if (isMobile) {
+                          setIsListOpen(false);
+                        }
+                      }}
                     />
                   ))}
                 </div>
