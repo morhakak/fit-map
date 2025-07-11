@@ -24,4 +24,5 @@ export type RawFacility = {
   "פנוי לפעילות"?: string;
   "נגישות לנכים"?: string;
   "מצב המתקן"?: string;
+  "רשות מקומית": string;
 };

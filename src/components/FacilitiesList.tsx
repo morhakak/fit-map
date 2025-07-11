@@ -66,9 +66,14 @@ const FacilitiesList = () => {
       const response = await axios.get("/api/facilities", {
         params: { q: cityQuery },
       });
-      const mapped: Facility[] = (
-        response.data.result.records as RawFacility[]
-      ).map((f) => {
+
+      const raws = response.data.result.records as RawFacility[];
+
+      const justThisMunicipality = raws.filter(
+        (f) => f["רשות מקומית"] === cityQuery
+      );
+
+      const mapped: Facility[] = justThisMunicipality.map((f) => {
         const x = Number(f["ציר X"]);
         const y = Number(f["ציר Y"]);
         const { lat, lng } = fromITMtoWGS84(x, y);
