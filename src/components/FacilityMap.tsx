@@ -24,6 +24,8 @@ export default function FacilityMap({
       defaultZoom={14}
       style={{ width: "100%", height: "100%" }}
       mapId="DEMO_MAP_ID"
+      fullscreenControl={false}
+      mapTypeControl={false}
     >
       {userLocation && (
         <AdvancedMarker position={userLocation} title="המיקום שלך">
