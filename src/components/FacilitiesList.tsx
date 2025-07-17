@@ -9,6 +9,7 @@ import FacilitySearchUI from "@/components/FacilitySearchUI";
 import FacilityListPanel from "./FacilityListPanel";
 import FacilityMap from "./FacilityMap";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CityQuerySchema } from "@/schemas/facilities";
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -92,8 +93,10 @@ const FacilitiesList = () => {
   }, [typeFilter, allFacilities]);
 
   const handleSearch = async () => {
-    if (!isValidHebrewInput(cityQuery) || !cityQuery.trim()) {
-      toast.warning("יש להזין עד 50 תווים בעברית בלבד");
+    const result = CityQuerySchema.safeParse(cityQuery);
+
+    if (!result.success) {
+      setErrorMessage(result.error.errors[0].message);
       return;
     }
 
@@ -132,11 +135,6 @@ const FacilitiesList = () => {
       setFacilities(filtered);
     }
   }, [typeFilter, allFacilities]);
-
-  const isValidHebrewInput = (text: string): boolean => {
-    const hebrewRegex = /^[\u0590-\u05FF\s]+$/;
-    return hebrewRegex.test(text.trim()) && text.trim().length <= 50;
-  };
 
   const toggleType = (type: string) => {
     setTypeFilter((prev) =>

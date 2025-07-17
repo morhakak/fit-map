@@ -1,14 +1,12 @@
 import { z } from "zod";
 
-export const FacilitiesQuerySchema = z.object({
-  q: z
-    .string()
-    .trim()
-    .nonempty("יש להזין שם עיר")
-    .max(50, "עד 50 תווים בלבד")
-    .regex(/^[\u0590-\u05FF\s]+$/, "עברית בלבד"),
-});
-export type FacilitiesQuery = z.infer<typeof FacilitiesQuerySchema>;
+export const CityQuerySchema = z
+  .string()
+  .trim()
+  .nonempty("יש להזין שם עיר")
+  .max(50, "עד 50 תווים בלבד")
+  .regex(/^[\u0590-\u05FF\s]+$/, "עברית בלבד");
+export type CityQuery = z.infer<typeof CityQuerySchema>;
 
 export const RawFacilitySchema = z.object({
   _id: z.string(),
