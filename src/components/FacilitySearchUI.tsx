@@ -43,10 +43,10 @@ Props) {
           <button
             onClick={handleSearch}
             aria-label="חפש"
+            disabled={!cityQuery}
             className="
           absolute left-0 top-1/2 -translate-y-1/2
-          p-2 text-gray-600 hover:text-gray-800 hover:cursor-pointer
-        "
+          p-2 text-gray-600 hover:text-gray-800 hover:cursor-pointer disabled:text-gray-400"
           >
             {isLoading ? (
               <FaSpinner
@@ -98,7 +98,7 @@ Props) {
           className={cn(
             "relative flex items-center justify-center ",
             "w-10 h-10 p-0 overflow-hidden",
-            "transition-colors duration-200 ease-in-out bg-white text-gray-800",
+            "transition-colors duration-200 ease-in-out bg-white text-gray-800 shadow-lg",
             toggleFilter ? "border border-gray-500" : "border-0"
           )}
         >

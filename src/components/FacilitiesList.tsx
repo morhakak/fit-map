@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { APIProvider } from "@vis.gl/react-google-maps";
-import type { Facility, RawFacility } from "../types/facility";
+import type { Facility } from "../types/facility";
 import { toast } from "sonner";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { fromITMtoWGS84 } from "@/utils/projection";
@@ -9,7 +9,8 @@ import FacilitySearchUI from "@/components/FacilitySearchUI";
 import FacilityListPanel from "./FacilityListPanel";
 import FacilityMap from "./FacilityMap";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CityQuerySchema } from "@/schemas/facilities";
+import { CityQuerySchema, FacilitiesApiResponse } from "@/schemas/facilities";
+import { devLog } from "@/utils/logger";
 
 const FacilitiesList = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
@@ -29,23 +30,32 @@ const FacilitiesList = () => {
   const queryKey = ["facilities", cityQuery];
   const { data, isLoading, error, refetch } = useQuery<Facility[], Error>({
     queryKey: queryKey,
-    queryFn: async () => {
-      const response = await axios.get("/api/facilities", {
-        params: { q: cityQuery },
-      });
+    queryFn: () => fetchFacilities(cityQuery),
+    enabled: false,
+    staleTime: Infinity,
+  });
 
-      const raws = response.data.result.records as RawFacility[];
-      const filteredRaw = raws.filter((f) => f["רשות מקומית"] === cityQuery);
-      return filteredRaw.map((f) => {
-        const x = Number(f["ציר X"]);
-        const y = Number(f["ציר Y"]);
-        const { lat, lng } = fromITMtoWGS84(x, y);
+  const fetchFacilities = async (city: string): Promise<Facility[]> => {
+    const response = await axios.get("/api/facilities", {
+      params: { q: city },
+    });
+
+    const parsed = FacilitiesApiResponse.safeParse(response.data);
+    if (!parsed.success) {
+      devLog("Bad API shape:", parsed.error.format());
+      throw new Error("נתוני השרת חזרו בפורמט לא תקין");
+    }
+
+    return parsed.data.result.records
+      .filter((f) => f["רשות מקומית"] === city)
+      .map((f) => {
+        const { lat, lng } = fromITMtoWGS84(f["ציר X"], f["ציר Y"]);
         return {
-          id: f._id,
+          id: Number(f._id),
           name: f["שם המתקן"],
           lat,
           lng,
-          street: f["רחוב"],
+          street: f.רחוב,
           houseNumber: f["מספר בית"],
           type: f["סוג מתקן"],
           schoolServed: Boolean(f["משרת בית ספר"]),
@@ -54,13 +64,10 @@ const FacilitiesList = () => {
           status: f["מצב המתקן"],
         };
       });
-    },
-    enabled: false,
-    staleTime: Infinity,
-  });
+  };
 
   useEffect(() => {
-    console.error(error);
+    devLog("Bad API shape:", error);
     if (error) {
       const msg =
         "אופס! נראה שיש לנו בעיה בקבלת הנתונים כרגע אנא נסה/נסי שוב מאוחר יותר.";
@@ -97,6 +104,7 @@ const FacilitiesList = () => {
 
     if (!result.success) {
       setErrorMessage(result.error.errors[0].message);
+      toast.error(result.error.errors[0].message);
       return;
     }
 
