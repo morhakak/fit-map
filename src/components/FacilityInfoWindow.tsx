@@ -2,7 +2,8 @@ import { InfoWindow } from "@vis.gl/react-google-maps";
 import type { Facility } from "@/types/facility";
 import { getFacilityEmoji } from "@/constants";
 import { MdAccessibleForward, MdSchool } from "react-icons/md";
-import { FaGoogle, FaWaze } from "react-icons/fa";
+import { FaWaze } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 type Props = {
   facility: Facility;
@@ -15,6 +16,7 @@ const FacilityInfoWindow = ({ facility, onClose }: Props) => {
       position={{ lat: facility.lat, lng: facility.lng }}
       onCloseClick={onClose}
       aria-label={`פרטים על המתקן ${facility.name}`}
+      className="font-rubik"
     >
       <div dir="rtl" lang="he" className="text-right leading-relaxed space-y-1">
         <div
@@ -65,27 +67,25 @@ const FacilityInfoWindow = ({ facility, onClose }: Props) => {
         )}
 
         <div className="flex gap-2 mt-2">
-          <p className="font-semibold text-base">ניווט עם:</p>
+          <p className="font-semibold text-nowrap">ניווט עם:</p>
           <a
             href={`https://waze.com/ul?ll=${facility.lat},${facility.lng}&navigate=yes`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 bg-[#05C8F7] text-white px-3 py-1 rounded-lg hover:bg-[#04B8E7] text-sm"
+            className="flex items-center gap-1"
             aria-label={`ניווט אל ${facility.name} עם Waze`}
           >
             <FaWaze size={18} />
-            Waze
           </a>
 
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${facility.lat},${facility.lng}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 bg-[#1167f3] text-white px-3 py-1 rounded-lg hover:bg-[#357AE8] text-sm active:bg-[#2A65C7]"
+            className="flex items-center gap-1"
             aria-label={`ניווט אל ${facility.name} עם Google Maps`}
           >
-            <FaGoogle size={18} />
-            Google Maps
+            <FcGoogle size={18} />
           </a>
         </div>
       </div>

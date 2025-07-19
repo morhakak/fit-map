@@ -128,7 +128,7 @@ const FacilitiesList = () => {
       language="iw"
     >
       <div
-        className="relative w-full h-screen flex flex-col "
+        className="relative w-full h-screen flex flex-col"
         dir="rtl"
         lang="he"
         role="application"

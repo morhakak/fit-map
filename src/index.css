@@ -1,5 +1,21 @@
+@font-face {
+  font-family: Rubik;
+  src: url(../src/assets/fonts/Rubik-Regular.ttf);
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
+
+@theme {
+  --font-rubik: Rubik, "sans-serif";
+}
+
+@layer base {
+  html,
+  body {
+    font-family: var(--font-rubik);
+  }
+}
 
 @custom-variant dark (&:is(.dark *));
 
