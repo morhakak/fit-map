@@ -6,7 +6,6 @@ import { LucideFilter } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { FaSpinner } from "react-icons/fa";
-// import { FaSpinner } from "react-icons/fa";
 
 type Props = {
   cityQuery: string;
@@ -26,10 +25,8 @@ export default function FacilitySearchUI({
   isLoading,
   typeFilter,
   toggleType,
-  // errorMessage,
   setErrorMessage,
-}: // setErrorMessage,
-Props) {
+}: Props) {
   const [toggleFilter, setToggleFilter] = useState(false);
   return (
     <div className="flex flex-col gap-4 border border-blue-600">
@@ -85,11 +82,6 @@ Props) {
                   "
             />
           </div>
-          {/* {errorMessage && (
-            <div className="text-red-500 text-xs mt-1 text-right absolute bg-white p-2 rounded-lg shadow-md">
-              {errorMessage}
-            </div>
-          )} */}
         </div>
         <Button
           variant="ghost"
