@@ -28,25 +28,55 @@ const FacilitiesList = () => {
 
   const qc = useQueryClient();
   const queryKey = ["facilities", cityQuery];
-  const { data, isLoading, error, refetch } = useQuery<Facility[], Error>({
+  const { data, isLoading, error, refetch, isError } = useQuery<
+    Facility[],
+    Error
+  >({
     queryKey: queryKey,
     queryFn: () => fetchFacilities(cityQuery),
     enabled: false,
     staleTime: Infinity,
   });
 
-  const fetchFacilities = async (city: string): Promise<Facility[]> => {
-    const response = await axios.get("/api/facilities", {
-      params: { q: city },
-    });
-    devLog("API response:", response.data);
-    console.log("API response:", response.data);
+  if (isError) {
+    toast.error(error.message);
+  }
 
-    const parsed = FacilitiesApiResponse.safeParse(response.data);
+  const fetchFacilities = async (city: string): Promise<Facility[]> => {
+    let rawData: unknown;
+    try {
+      const response = await axios.get("/api/facilities", {
+        params: { q: city },
+      });
+      rawData = response.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          switch (err.response.status) {
+            case 403:
+              throw new Error("אין לך הרשאה לגשת למתקנים האלה");
+            case 404:
+              throw new Error("לא נמצאו מתקנים ברשות המקומית שהזנת");
+            default:
+              throw new Error(`שגיאת שרת: ${err.response.status}`);
+          }
+        }
+        if (err.request) {
+          throw new Error(
+            "שגיאה ברשת: אנא בדוק/י את חיבור האינטרנט ונסה/י שוב"
+          );
+        }
+      }
+      throw new Error(
+        "אופס! נראה שיש לנו בעיה בקבלת הנתונים כרגע אנא נסה/נסי שוב מאוחר יותר."
+      );
+    }
+    devLog("API response:", rawData);
+
+    const parsed = FacilitiesApiResponse.safeParse(rawData);
     if (!parsed.success) {
       devLog("Bad API shape:", parsed.error.message);
-      console.error("Bad API shape:", parsed.error.message);
-      throw new Error("נתוני השרת חזרו בפורמט לא תקין");
+      throw new Error("שגיאת נתונים מהשרת");
     }
 
     return parsed.data.result.records
@@ -68,15 +98,6 @@ const FacilitiesList = () => {
         };
       });
   };
-
-  useEffect(() => {
-    devLog("Bad API shape:", error);
-    if (error) {
-      const msg =
-        "אופס! נראה שיש לנו בעיה בקבלת הנתונים כרגע אנא נסה/נסי שוב מאוחר יותר.";
-      toast.error(msg);
-    }
-  }, [error]);
 
   useEffect(() => {
     if (data) {
