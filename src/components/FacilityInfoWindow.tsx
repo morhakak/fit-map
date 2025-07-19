@@ -7,10 +7,9 @@ import { FaGoogle, FaWaze } from "react-icons/fa";
 type Props = {
   facility: Facility;
   onClose: () => void;
-  isMobile: boolean;
 };
 
-const FacilityInfoWindow = ({ facility, onClose, isMobile }: Props) => {
+const FacilityInfoWindow = ({ facility, onClose }: Props) => {
   return (
     <InfoWindow
       position={{ lat: facility.lat, lng: facility.lng }}
@@ -66,27 +65,27 @@ const FacilityInfoWindow = ({ facility, onClose, isMobile }: Props) => {
         )}
 
         <div className="flex gap-2 mt-2">
-          {isMobile && (
-            <a
-              href={`https://waze.com/ul?ll=${facility.lat},${facility.lng}&navigate=yes`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 text-sm"
-              aria-label={`ניווט אל ${facility.name} עם Waze`}
-            >
-              <FaWaze size={18} />
-              ניווט עם Waze
-            </a>
-          )}
+          <p className="font-semibold text-base">ניווט עם:</p>
+          <a
+            href={`https://waze.com/ul?ll=${facility.lat},${facility.lng}&navigate=yes`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 bg-[#05C8F7] text-white px-3 py-1 rounded-lg hover:bg-[#04B8E7] text-sm"
+            aria-label={`ניווט אל ${facility.name} עם Waze`}
+          >
+            <FaWaze size={18} />
+            Waze
+          </a>
+
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${facility.lat},${facility.lng}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+            className="flex items-center gap-1 bg-[#1167f3] text-white px-3 py-1 rounded-lg hover:bg-[#357AE8] text-sm active:bg-[#2A65C7]"
             aria-label={`ניווט אל ${facility.name} עם Google Maps`}
           >
             <FaGoogle size={18} />
-            ניווט עם Google
+            Google Maps
           </a>
         </div>
       </div>

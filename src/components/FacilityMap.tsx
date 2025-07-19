@@ -8,7 +8,6 @@ interface Props {
   userLocation: { lat: number; lng: number } | null;
   selectedFacility: Facility | null;
   setSelectedFacility: (f: Facility | null) => void;
-  isMobile: boolean;
 }
 
 export default function FacilityMap({
@@ -16,7 +15,6 @@ export default function FacilityMap({
   userLocation,
   selectedFacility,
   setSelectedFacility,
-  isMobile,
 }: Props) {
   return (
     <Map
@@ -53,7 +51,6 @@ export default function FacilityMap({
         <FacilityInfoWindow
           facility={selectedFacility}
           onClose={() => setSelectedFacility(null)}
-          isMobile={isMobile}
         />
       )}
     </Map>

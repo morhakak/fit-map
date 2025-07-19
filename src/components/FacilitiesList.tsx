@@ -158,7 +158,6 @@ const FacilitiesList = () => {
           userLocation={userLocation}
           selectedFacility={selectedFacility}
           setSelectedFacility={setSelectedFacility}
-          isMobile={isMobile}
         />
       </div>
     </APIProvider>
