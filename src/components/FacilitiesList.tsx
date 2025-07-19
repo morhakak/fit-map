@@ -39,10 +39,13 @@ const FacilitiesList = () => {
     const response = await axios.get("/api/facilities", {
       params: { q: city },
     });
+    devLog("API response:", response.data);
+    console.log("API response:", response.data);
 
     const parsed = FacilitiesApiResponse.safeParse(response.data);
     if (!parsed.success) {
-      devLog("Bad API shape:", parsed.error.format());
+      devLog("Bad API shape:", parsed.error.message);
+      console.error("Bad API shape:", parsed.error.message);
       throw new Error("נתוני השרת חזרו בפורמט לא תקין");
     }
 
