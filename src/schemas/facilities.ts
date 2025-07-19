@@ -9,9 +9,9 @@ export const CityQuerySchema = z
 export type CityQuery = z.infer<typeof CityQuerySchema>;
 
 export const RawFacilitySchema = z.object({
-  _id: z.string(),
-  "ציר X": z.string().transform((s) => Number(s)),
-  "ציר Y": z.string().transform((s) => Number(s)),
+  _id: z.union([z.string(), z.number()]).transform((id) => String(id)),
+  "ציר X": z.union([z.string(), z.number()]).transform((val) => Number(val)),
+  "ציר Y": z.union([z.string(), z.number()]).transform((val) => Number(val)),
   "שם המתקן": z.string(),
   רחוב: z.string().optional(),
   "מספר בית": z.string().optional(),
