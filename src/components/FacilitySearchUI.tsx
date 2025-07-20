@@ -6,6 +6,7 @@ import { LucideFilter } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { FaSpinner } from "react-icons/fa";
+import { motion, type Variants, AnimatePresence } from "framer-motion";
 
 type Props = {
   cityQuery: string;
@@ -16,6 +17,25 @@ type Props = {
   toggleType: (type: string) => void;
   errorMessage: string;
   setErrorMessage: (msg: string) => void;
+};
+
+const boxVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: -20,
+    transition: {
+      duration: 0.3,
+      ease: "easeIn",
+    },
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  },
 };
 
 export default function FacilitySearchUI({
@@ -90,39 +110,45 @@ export default function FacilitySearchUI({
           className={cn(
             "relative flex items-center justify-center ",
             "w-10 h-10 p-0 overflow-hidden",
-            "transition-colors duration-200 ease-in-out bg-white text-gray-800 shadow-lg",
+            "transition-colors duration-200 ease-in-out bg-white text-gray-800 shadow-lg hover:cursor-pointer",
             toggleFilter ? "border border-gray-500" : "border-0"
           )}
         >
           <LucideFilter size={16} className={cn("pointer-events-none")} />
         </Button>
       </div>
-      {toggleFilter && (
-        <div
-          className={
-            "absolute left-1/2 -translate-x-1/2 z-10 flex justify-center w-[100%] top-16 gap-2 px-2 flex-wrap"
-          }
-        >
-          {allTypes.map((type) => {
-            const active = typeFilter.includes(type);
-            return (
-              <Button
-                key={type}
-                onClick={() => toggleType(type)}
-                className={`
+      <AnimatePresence>
+        {toggleFilter && (
+          <motion.div
+            variants={boxVariants}
+            initial="hidden"
+            animate={toggleFilter ? "visible" : "hidden"}
+            exit="hidden"
+            className={
+              "absolute left-1/2 -translate-x-1/2 z-10 flex justify-center w-full top-16 gap-2 px-2 flex-wrap"
+            }
+          >
+            {allTypes.map((type) => {
+              const active = typeFilter.includes(type);
+              return (
+                <Button
+                  key={type}
+                  onClick={() => toggleType(type)}
+                  className={`
             flex items-center gap-1 flex-shrink-0
             px-3 py-1 text-sm rounded-full transition
-            border bg-white hover:bg-accent shadow-xl text-gray-900
+            border bg-white hover:bg-accent shadow-xl text-gray-900 hover:cursor-pointer
             ${active ? "border-gray-500" : "border-transparent"}
           `}
-              >
-                <span>{getFacilityEmoji(type)}</span>
-                <span>{type}</span>
-              </Button>
-            );
-          })}
-        </div>
-      )}
+                >
+                  <span>{getFacilityEmoji(type)}</span>
+                  <span>{type}</span>
+                </Button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
