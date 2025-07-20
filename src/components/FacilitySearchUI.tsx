@@ -49,14 +49,14 @@ export default function FacilitySearchUI({
 }: Props) {
   const [toggleFilter, setToggleFilter] = useState(false);
   return (
-    <div className="flex flex-col gap-4 border border-blue-600">
+    <div className="flex flex-col gap-4 border rounded-xl">
       <div
         className="
       absolute left-1/2 -translate-x-1/2 z-10
       flex flex-row items-center justify-center gap-2
-      p-2 w-[90%]"
+      p-2 w-[90%] rounded-xl"
       >
-        <div className="relative bg-white shadow-lg rounded-lg w-full sm:w-[300px]">
+        <div className="relative bg-white shadow-lg rounded-xl w-full sm:w-[300px]">
           <button
             onClick={handleSearch}
             aria-label="חפש"
@@ -77,12 +77,12 @@ export default function FacilitySearchUI({
           <div
             className="
           absolute right-0 top-1/2 -translate-y-1/2
-          p-2 text-gray-400 pointer-events-none
+          p-2 text-gray-400 pointer-events-none rounded-xl
         "
           >
             <MdLocationOn size={20} color="red" />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 rounded-xl">
             <input
               type="text"
               value={cityQuery}
@@ -97,9 +97,8 @@ export default function FacilitySearchUI({
               placeholder="חפש לפי רשות מקומית..."
               aria-label="חיפוש לפי עיר או רשות מקומית"
               className="
-            w-full pr-10 pl-10 p-2 rounded-lg border
-            text-right placeholder-gray-500 focus:outline-none
-                  "
+            w-full pr-10 pl-10 p-2 rounded-xl border
+            text-right placeholder-gray-500 focus:outline-none"
             />
           </div>
         </div>
@@ -109,8 +108,8 @@ export default function FacilitySearchUI({
           aria-pressed={toggleFilter}
           className={cn(
             "relative flex items-center justify-center ",
-            "w-10 h-10 p-0 overflow-hidden",
-            "transition-colors duration-200 ease-in-out bg-white text-gray-800 shadow-lg hover:cursor-pointer",
+            "w-10 h-10 p-0 overflow-hidden rounded-xl",
+            "transition-colors duration-200 ease-in-out bg-white text-gray-500 shadow-lg hover:cursor-pointer",
             toggleFilter ? "border border-gray-500" : "border-0"
           )}
         >
