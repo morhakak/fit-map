@@ -33,8 +33,11 @@ export default function FacilityListPanel({
         <motion.div
           className="fixed bottom-0 left-0 right-0 z-10 flex justify-center"
           drag="y"
+          animate={{ y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
           dragConstraints={{ top: -200, bottom: 0 }}
           dragElastic={0.2}
+          dragMomentum={false}
           onDragEnd={(_event: MouseEvent | TouchEvent, info: PanInfo) => {
             if (info.offset.y < -50) setIsListOpen(true);
           }}
@@ -77,9 +80,12 @@ export default function FacilityListPanel({
                 </div>
               </div> */}
               <motion.div
+                animate={{ y: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 drag="y"
                 dragConstraints={{ top: 0, bottom: 300 }}
                 dragElastic={0.2}
+                dragMomentum={false}
                 onDragEnd={(_e, info) => {
                   if (info.offset.y > 50) setIsListOpen(false);
                 }}
