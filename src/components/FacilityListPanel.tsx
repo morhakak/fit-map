@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { MdAccessibleForward } from "react-icons/md";
 import type { Facility } from "@/types/facility";
 import { getFacilityEmoji } from "@/constants";
@@ -24,12 +24,23 @@ export default function FacilityListPanel({
   if (isMobile) {
     return (
       <>
-        <div
+        {/* <div
           className="fixed bottom-0 left-0 right-0 z-10 flex justify-center"
           onClick={() => setIsListOpen((prev) => !prev)}
         >
           <div className="w-12 h-1.5 bg-gray-400 rounded-full my-2 cursor-pointer"></div>
-        </div>
+        </div> */}
+        <motion.div
+          className="fixed bottom-0 left-0 right-0 z-10 flex justify-center"
+          drag="y"
+          dragConstraints={{ top: -200, bottom: 0 }}
+          dragElastic={0.2}
+          onDragEnd={(_event: MouseEvent | TouchEvent, info: PanInfo) => {
+            if (info.offset.y < -50) setIsListOpen(true);
+          }}
+        >
+          <div className="w-12 h-1.5 bg-gray-400 rounded-full my-2 cursor-pointer" />
+        </motion.div>
         <AnimatePresence>
           {isListOpen && (
             <motion.div
@@ -40,7 +51,7 @@ export default function FacilityListPanel({
               className="fixed bottom-0 left-0 right-0 z-20 bg-white h-[60vh] rounded-t-2xl shadow-2xl overflow-y-auto touch-pan-y overscroll-contain"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
-              <div
+              {/* <div
                 className="flex justify-center items-center gap-1 cursor-pointer py-2"
                 onClick={() => setIsListOpen(false)}
               >
@@ -60,6 +71,35 @@ export default function FacilityListPanel({
                         if (isMobile) {
                           setIsListOpen(false);
                         }
+                      }}
+                    />
+                  ))}
+                </div>
+              </div> */}
+              <motion.div
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 300 }}
+                dragElastic={0.2}
+                onDragEnd={(_e, info) => {
+                  if (info.offset.y > 50) setIsListOpen(false);
+                }}
+                className="flex justify-center items-center gap-1 cursor-pointer py-2"
+              >
+                <div className="w-12 h-1.5 bg-gray-400 rounded-full" />
+              </motion.div>
+
+              <div className="px-4 overflow-y-auto h-[calc(60vh-2rem)] touch-pan-y overscroll-contain">
+                <div className="text-center font-semibold mb-3">
+                  רשימת מתקנים
+                </div>
+                <div className="space-y-2">
+                  {facilities.map((facility) => (
+                    <FacilityItem
+                      key={facility.id}
+                      facility={facility}
+                      onSelect={() => {
+                        setSelectedFacility(facility);
+                        setIsListOpen(false);
                       }}
                     />
                   ))}
